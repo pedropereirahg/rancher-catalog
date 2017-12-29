@@ -1,6 +1,6 @@
 .catalog:
   name: mailcow
-  version: 0.0.4
+  version: 0.0.5
   description: mailserver suite
   questions:
     - variable: MAILCOW_HOSTNAME

@@ -3,7 +3,7 @@ services:
 
   unbound:
     image: mailcow/unbound-mailcow:1.0
-    build: ${DATA_DIR}/Dockerfiles/unbound
+    # build: ${DATA_DIR}/Dockerfiles/unbound
     command: /usr/sbin/unbound
     volumes:
       - ${DATA_DIR}/conf/unbound/unbound.conf:/etc/unbound/unbound.conf:ro
@@ -49,7 +49,7 @@ services:
 
   clamd:
     image: mailcow/clamd:1.5
-    build: ${DATA_DIR}/Dockerfiles/clamd
+    # build: ${DATA_DIR}/Dockerfiles/clamd
     environment:
       - SKIP_CLAMD=${SKIP_CLAMD}
     restart: always
@@ -62,7 +62,7 @@ services:
 
   rspamd:
     image: mailcow/rspamd:1.14
-    build: ${DATA_DIR}/Dockerfiles/rspamd
+    # build: ${DATA_DIR}/Dockerfiles/rspamd
     stop_grace_period: 30s
     depends_on:
       - nginx
@@ -85,7 +85,7 @@ services:
 
   php-fpm:
     image: mailcow/phpfpm:1.5
-    build: ${DATA_DIR}/Dockerfiles/phpfpm
+    # build: ${DATA_DIR}/Dockerfiles/phpfpm
     command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
     depends_on:
       - redis
@@ -116,7 +116,7 @@ services:
 
   sogo:
     image: mailcow/sogo:1.10
-    build: ${DATA_DIR}/Dockerfiles/sogo
+    # build: ${DATA_DIR}/Dockerfiles/sogo
     environment:
       - DBNAME=${DBNAME}
       - DBUSER=${DBUSER}
@@ -136,7 +136,7 @@ services:
 
   dovecot:
     image: mailcow/dovecot:1.12
-    build: ${DATA_DIR}/Dockerfiles/dovecot
+    # build: ${DATA_DIR}/Dockerfiles/dovecot
     cap_add:
       - NET_BIND_SERVICE
     volumes:
@@ -172,7 +172,7 @@ services:
 
   postfix:
     image: mailcow/postfix:1.7
-    build: ${DATA_DIR}/Dockerfiles/postfix
+    # build: ${DATA_DIR}/Dockerfiles/postfix
     volumes:
       - ${DATA_DIR}/conf/postfix:/opt/postfix/conf
       - ${DATA_DIR}/assets/ssl:/etc/ssl/mail/:ro
@@ -250,7 +250,7 @@ services:
       - nginx
       - mysql
     image: mailcow/acme:1.24
-    build: ${DATA_DIR}/Dockerfiles/acme
+    # build: ${DATA_DIR}/Dockerfiles/acme
     environment:
       - ADDITIONAL_SAN=${ADDITIONAL_SAN}
       - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
@@ -273,7 +273,7 @@ services:
 
   fail2ban:
     image: mailcow/fail2ban:1.9
-    build: ${DATA_DIR}/Dockerfiles/fail2ban
+    # build: ${DATA_DIR}/Dockerfiles/fail2ban
     stop_grace_period: 30s
     depends_on:
       - dovecot
@@ -294,7 +294,7 @@ services:
 
   watchdog:
     image: mailcow/watchdog:1.10
-    build: ${DATA_DIR}/Dockerfiles/watchdog
+    # build: ${DATA_DIR}/Dockerfiles/watchdog
     volumes:
       - vmail-vol-1:/vmail:ro
     restart: always
@@ -313,7 +313,7 @@ services:
 
   dockerapi:
     image: mailcow/dockerapi:1.2
-    build: ${DATA_DIR}/Dockerfiles/dockerapi
+    # build: ${DATA_DIR}/Dockerfiles/dockerapi
     oom_score_adj: -10
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
