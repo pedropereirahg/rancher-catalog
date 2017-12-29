@@ -66,6 +66,8 @@ services:
     stop_grace_period: 30s
     depends_on:
       - nginx
+    links:
+      - redis:redis
     volumes:
       - ${DATA_DIR}/conf/rspamd/custom/:/etc/rspamd/custom:ro
       - ${DATA_DIR}/conf/rspamd/override.d/:/etc/rspamd/override.d:ro
@@ -89,6 +91,9 @@ services:
     command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
     depends_on:
       - redis
+    links:
+      - redis:redis-mailcow
+      - mysql:mysql-mailcow
     volumes:
       - ${DATA_DIR}/web:/web:rw
       - ${DATA_DIR}/conf/rspamd/dynmaps:/dynmaps:ro
@@ -123,6 +128,8 @@ services:
       - DBPASS=${DBPASS}
       - TZ=${TZ}
       - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+    links:
+      - redis:redis-mailcow
     volumes:
       - ${DATA_DIR}/conf/sogo/:/etc/sogo/
     restart: always
@@ -145,6 +152,8 @@ services:
       - ${DATA_DIR}/conf/sogo/:/etc/sogo/
       - vmail-vol-1:/var/vmail
       - crypt-vol-1:/mail_crypt/
+    links:
+      - redis:redis-mailcow
     environment:
       - DBNAME=${DBNAME}
       - DBUSER=${DBUSER}
@@ -178,6 +187,8 @@ services:
       - ${DATA_DIR}/assets/ssl:/etc/ssl/mail/:ro
       - postfix-vol-1:/var/spool/postfix
       - crypt-vol-1:/var/lib/zeyple
+    links:
+      - redis:redis-mailcow
     environment:
       - DBNAME=${DBNAME}
       - DBUSER=${DBUSER}
@@ -211,6 +222,8 @@ services:
       - sogo
       - php-fpm
       - redis
+    links:
+      - php-fpm:phpfpm
     command: /bin/sh -c "envsubst < /etc/nginx/conf.d/templates/listen_plain.template > /etc/nginx/conf.d/listen_plain.active &&
         envsubst < /etc/nginx/conf.d/templates/listen_ssl.template > /etc/nginx/conf.d/listen_ssl.active &&
         envsubst < /etc/nginx/conf.d/templates/server_name.template > /etc/nginx/conf.d/server_name.active &&
@@ -281,6 +294,8 @@ services:
       - sogo
       - php-fpm
       - redis
+    links:
+      - redis:redis
     restart: always
     privileged: true
     environment:
