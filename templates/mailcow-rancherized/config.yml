@@ -1,0 +1,6 @@
+name: Mailcow Rancherized
+description: Mailserver suite for rancher
+version: 0.0.1
+category: Email
+maintainer: "Pedro Pereira <pedrogoncalvesp.95@gmail.com>"
+projectURL: https://github.com/pedrogoncalvesk/rancher-catalog
