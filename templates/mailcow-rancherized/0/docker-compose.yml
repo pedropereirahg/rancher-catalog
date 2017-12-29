@@ -2,7 +2,7 @@ version: '2'
 services:
 
   unbound:
-    image: mailcow/unbound-mailcow:1.0
+    image: mailcow/unbound:1.0
     # build: ${DATA_DIR}/Dockerfiles/unbound
     command: /usr/sbin/unbound
     volumes:
