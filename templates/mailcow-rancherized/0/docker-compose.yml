@@ -150,7 +150,7 @@ services:
       - DBUSER=${DBUSER}
       - DBPASS=${DBPASS}
     ports:
-      - "${DOVEADM_PORT:-127.0.0.1:19991}:12345"
+      - "${DOVEADM_BIND:-127.0.0.1}:${DOVEADM_PORT:-19991}:12345"
       - "${IMAP_PORT:-143}:143"
       - "${IMAPS_PORT:-993}:993"
       - "${POP_PORT:-110}:110"

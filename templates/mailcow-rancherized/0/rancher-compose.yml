@@ -149,9 +149,14 @@
       default: "0.0.0.0"
 
     - variable: DOVEADM_PORT
-      label: Dovecot Adm
+      label: Dovecot Adm Port
+      type: "int"
+      default: 19991
+
+    - variable: DOVEADM_BIND
+      label: Dovecot Adm Bind
       type: "string"
-      default: "127.0.0.1:19991"
+      default: "127.0.0.1"
 
     - variable: STORAGE_DRIVER
       label: Storage Driver
