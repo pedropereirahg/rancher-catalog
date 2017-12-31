@@ -1,6 +1,6 @@
 .catalog:
   name: mailcow
-  version: 0.0.7
+  version: 0.0.8
   description: mailserver suite
   questions:
     - variable: MAILCOW_HOSTNAME
@@ -162,7 +162,6 @@
       label: Storage Driver
       description: "Set driver, if needed. Eg. 'rancher-nfs'"
       type: "string"
-      default: "rancher-nfs"
 
 unbound:
   scale: 1
