@@ -142,8 +142,8 @@ services:
       - redis
       - php-fpm
     environment:
-      - HTTPS_PORT=${HTTPS_PORT}
-      - HTTP_PORT=${HTTP_PORT}
+      - HTTPS_PORT=443
+      - HTTP_PORT=80
       - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
     volumes:
       - acme-vol-1:/acme:rw
@@ -151,21 +151,21 @@ services:
       - dynmaps-vol-1:/dynmaps:ro
       - ssl-vol-1:/etc/ssl/mail/:ro
     ports:
-      - "${HTTPS_BIND}:${HTTPS_PORT}:${HTTPS_PORT}"
-      - "${HTTP_BIND}:${HTTP_PORT}:${HTTP_PORT}"
+      - "${HTTPS_BIND}:${HTTPS_PORT}:443
+      - "${HTTP_BIND}:${HTTP_PORT}:80
     labels:
       rap.host: ${MAILCOW_HOSTNAME}
-      rap.port: ${HTTP_PORT}
-      rap.http_listen_ports: ${HTTP_PORT}
-      rap.https_listen_ports: ${HTTPS_PORT}
+      rap.port: 443
+      rap.proto: https
+      rap.http_listen_ports: 80,443
     restart: always
-    dns:
-      - 172.22.1.254
-    networks:
-      mailcow-network:
-        ipv4_address: 172.22.1.251
-        aliases:
-          - nginx
+    # dns:
+    #   - 172.22.1.254
+    # networks:
+    #   mailcow-network:
+    #     ipv4_address: 172.22.1.251
+    #     aliases:
+    #       - nginx
 
   dovecot:
     image: pedrogoncalvesk/mailcow-dovecot:2.1
@@ -310,7 +310,7 @@ services:
           - watchdog
 
   dockerapi:
-    image: pedrogoncalvesk/mailcow-dockerapi:2.1
+    image: pedrogoncalvesk/mailcow-dockerapi:2.2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
@@ -319,13 +319,13 @@ services:
     restart: always
     privileged: true
     oom_score_adj: -10
-    dns:
-      - 172.22.1.254
-    networks:
-      mailcow-network:
-        ipv4_address: 172.22.1.246
-        aliases:
-          - dockerapi
+    # dns:
+    #   - 172.22.1.254
+    # networks:
+    #   mailcow-network:
+    #     ipv4_address: 172.22.1.246
+    #     aliases:
+    #       - dockerapi
 
   ipv6nat:
     image: robbertkl/ipv6nat
