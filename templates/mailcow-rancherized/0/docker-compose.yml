@@ -132,7 +132,7 @@ services:
           - sogo
 
   nginx:
-    image: pedrogoncalvesk/mailcow-nginx:1.1
+    image: pedrogoncalvesk/mailcow-nginx:1.2
     links:
       - sogo
       - redis
@@ -246,7 +246,7 @@ services:
       - nginx
       - mysql
     volumes:
-      - acme-vol-1:/var/www/acme:rw
+      - acme-vol-1:/var/www/acme/:rw
       - ssl-vol-1:/var/lib/acme/:rw
     environment:
       - ADDITIONAL_SAN=${ADDITIONAL_SAN}
