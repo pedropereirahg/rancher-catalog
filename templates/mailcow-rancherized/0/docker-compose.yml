@@ -132,7 +132,7 @@ services:
           - sogo
 
   nginx:
-    image: pedrogoncalvesk/mailcow-nginx:1.3
+    image: pedrogoncalvesk/mailcow-nginx:1.4
     links:
       - sogo
       - redis
@@ -146,8 +146,9 @@ services:
       - HTTP_PORT=80
       - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
     volumes:
-      - acme-vol-1:/acme:rw
+      - /web/.well-known
       - web-vol-1:/web:rw
+      - acme-vol-1:/web/.well-known/acme-challenge:rw
       - dynmaps-vol-1:/dynmaps:ro
       - ssl-vol-1:/etc/ssl/mail/:ro
     ports:
@@ -246,7 +247,7 @@ services:
       - nginx
       - mysql
     volumes:
-      - acme-vol-1:/var/www/acme/:rw
+      - acme-vol-1:/var/www/acme:rw
       - ssl-vol-1:/var/lib/acme/:rw
     environment:
       - ADDITIONAL_SAN=${ADDITIONAL_SAN}
