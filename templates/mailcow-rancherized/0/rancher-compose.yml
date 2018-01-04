@@ -1,0 +1,200 @@
+.catalog:
+  name: mailcow
+  version: 1.0.0
+  description: mailserver suite
+  questions:
+    - variable: MAILCOW_HOSTNAME
+      label: Hostname
+      type: "string"
+      required: true
+      description: "Use a FQDN (E.g. mail.example.com) as hostname"
+
+    - variable: TZ
+      label: Timezone
+      type: "string"
+      required: true
+      default: "America/Sao_Paulo"
+      description: "Format: Area/Location (E.g. Europe/Berlin)"
+
+    - variable: STORAGE_DRIVER
+      label: Storage Driver
+      description: "Set driver, if needed. Eg. 'rancher-nfs'"
+      type: "string"
+
+    - variable: DBROOT
+      label: DB Root Password
+      required: true
+      type: "password"
+      default: "mailcow"
+
+    - variable: DBNAME
+      label: Database Name
+      required: true
+      type: "string"
+      default: "mailcow"
+
+    - variable: DBUSER
+      label: Database User Name
+      required: true
+      type: "string"
+      default: "mailcow"
+
+    - variable: DBPASS
+      label: Database User Password
+      required: true
+      type: "password"
+      default: "mailcow"
+
+    - variable: USE_WATCHDOG
+      label: "Enable Watchdog"
+      type: "string"
+      default: "y"
+      description: "Enable watchdog to restart unhealthy containers (experimental) - y/n"
+
+    - variable: WATCHDOG_NOTIFY_EMAIL
+      label: "Watchdog Notify by Mail"
+      type: "string"
+      default: "y"
+      description: "Send notifications by mail (no DKIM signature, sent from watchdog@MAILCOW_HOSTNAME) - y/n"
+
+    - variable: ADDITIONAL_SAN
+      label: "Additional SAN"
+      type: "string"
+      description: "Additional SAN for the certificate"
+
+    - variable: SKIP_LETS_ENCRYPT
+      label: "Skip Let's Encrypt"
+      type: "string"
+      default: "n"
+      description: "Skip running ACME (acme, Let's Encrypt certs) - y/n"
+
+    - variable: SKIP_IP_CHECK
+      label: "Skip IP Check"
+      type: "string"
+      default: "n"
+      description: "Skip IPv4 check in ACME container - y/n"
+
+    - variable: SKIP_FAIL2BAN
+      label: "Skip Fail2ban"
+      type: "string"
+      default: "n"
+      description: "Skip Fail2ban implementation (fail2ban-mailcow) - y/n"
+
+    - variable: SKIP_CLAMD
+      label: "Skip Clamd"
+      type: "string"
+      default: "n"
+      description: "Skip ClamAV anti-virus (Rspamd will auto-detect a missing ClamAV container) - y/n"
+
+    - variable: IMAP_PORT
+      label: IMAP Port
+      type: "int"
+      default: 143
+
+    - variable: IMAPS_PORT
+      label: IMAPS Port
+      type: "int"
+      default: 993
+
+    - variable: POP_PORT
+      label: POP Port
+      type: "int"
+      default: 110
+
+    - variable: POPS_PORT
+      label: POPS Port
+      type: "int"
+      default: 995
+
+    - variable: SIEVE_PORT
+      label: SIEVE Port
+      type: "int"
+      default: 4190
+
+    - variable: SUBMISSION_PORT
+      label: Submission Port
+      type: "int"
+      default: 587
+
+    - variable: SMTP_PORT
+      label: SMTP Port
+      type: "int"
+      default: 25
+
+    - variable: SMTPS_PORT
+      label: SMTPS Port
+      type: "int"
+      default: 465
+
+    - variable: HTTP_PORT
+      label: HTTP Port
+      type: "int"
+      default: 8083
+
+    - variable: HTTPS_PORT
+      label: HTTPS Port
+      type: "int"
+      default: 8084
+
+    - variable: HTTP_BIND
+      label: "HTTP Bind"
+      type: "string"
+      default: "0.0.0.0"
+
+    - variable: HTTPS_BIND
+      label: "HTTPS Bind"
+      type: "string"
+      default: "0.0.0.0"
+
+    - variable: DOCKERAPI_BIND
+      label: "Dockerapi Bind"
+      type: "string"
+      default: "0.0.0.0"
+
+    - variable: DOCKERAPI_PORT
+      label: Dockerapi Port
+      type: "int"
+      default: 8085
+
+    - variable: DOVEADM_PORT
+      label: Dovecot Adm Port
+      type: "int"
+      default: 19991
+
+    - variable: DOVEADM_BIND
+      label: Dovecot Adm Bind
+      type: "string"
+      default: "127.0.0.1"
+
+unbound:
+  scale: 1
+mysql:
+  scale: 1
+redis:
+  scale: 1
+clamd:
+  scale: 1
+rspamd:
+  scale: 1
+php-fpm:
+  scale: 1
+sogo:
+  scale: 1
+nginx:
+  scale: 1
+dovecot:
+  scale: 1
+postfix:
+  scale: 1
+memcached:
+  scale: 1
+acme:
+  scale: 1
+fail2ban:
+  scale: 1
+watchdog:
+  scale: 1
+dockerapi:
+  scale: 1
+ipv6nat:
+  scale: 1

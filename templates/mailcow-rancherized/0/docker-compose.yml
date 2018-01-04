@@ -1,0 +1,371 @@
+version: '2'
+services:
+
+  unbound:
+    image: pedrogoncalvesk/mailcow-unbound:2.0
+    restart: always
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.254
+        aliases:
+          - unbound
+
+  mysql:
+    image: pedrogoncalvesk/mailcow-mysql:1.0
+    volumes:
+      - mysql-vol-1:/var/lib/mysql/
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DBROOT}
+      - MYSQL_DATABASE=${DBNAME}
+      - MYSQL_USER=${DBUSER}
+      - MYSQL_PASSWORD=${DBPASS}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.250
+        aliases:
+          - mysql
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-vol-1:/data/
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.249
+        aliases:
+          - redis
+
+  clamd:
+    image: pedrogoncalvesk/mailcow-clamd:2.0
+    environment:
+      - SKIP_CLAMD=${SKIP_CLAMD}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        aliases:
+          - clamd
+
+  rspamd:
+    image: pedrogoncalvesk/mailcow-rspamd:2.0
+    links:
+      - php-fpm
+    depends_on:
+      - php-fpm
+      - nginx
+    volumes:
+      - dkim-vol-1:/data/dkim
+      - rspamd-vol-1:/var/lib/rspamd
+    stop_grace_period: 30s
+    restart: always
+    dns:
+      - 172.22.1.254
+    hostname: rspamd
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.253
+        aliases:
+          - rspamd
+
+  php-fpm:
+    image: pedrogoncalvesk/mailcow-phpfpm:2.0
+    command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
+    links:
+      - redis:redis-mailcow
+      - mysql:mysql-mailcow
+    depends_on:
+      - redis
+      - mysql
+      - postfix
+    volumes:
+      - web-vol-1:/var/www/web:rw
+      - dynmaps-vol-1:/var/www/dynmaps:rw
+      - dkim-vol-1:/data/dkim
+    environment:
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+      - IMAP_PORT=${IMAP_PORT}
+      - IMAPS_PORT=${IMAPS_PORT}
+      - POP_PORT=${POP_PORT}
+      - POPS_PORT=${POPS_PORT}
+      - SIEVE_PORT=${SIEVE_PORT}
+      - SUBMISSION_PORT=${SUBMISSION_PORT}
+      - SMTPS_PORT=${SMTPS_PORT}
+      - SMTP_PORT=${SMTP_PORT}
+      - DOCKERAPI_PORT=${DOCKERAPI_PORT}
+      - DOCKERAPI_BIND=${DOCKERAPI_BIND}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        aliases:
+          - phpfpm
+
+  sogo:
+    image: pedrogoncalvesk/mailcow-sogo:2.0
+    links:
+      - mysql
+      - redis:redis-mailcow
+    environment:
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - TZ=${TZ}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.252
+        aliases:
+          - sogo
+
+  nginx:
+    image: pedrogoncalvesk/mailcow-nginx:1.0
+    links:
+      - sogo
+      - redis
+      - php-fpm:phpfpm
+    depends_on:
+      - sogo
+      - redis
+      - php-fpm
+    environment:
+      - HTTPS_PORT=${HTTPS_PORT}
+      - HTTP_PORT=${HTTP_PORT}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+    volumes:
+      - acme-vol-1:/acme:rw
+      - web-vol-1:/web:rw
+      - dynmaps-vol-1:/dynmaps:ro
+      - ssl-vol-1:/etc/ssl/mail/:ro
+    ports:
+      - "${HTTPS_BIND}:${HTTPS_PORT}:${HTTPS_PORT}"
+      - "${HTTP_BIND}:${HTTP_PORT}:${HTTP_PORT}"
+    labels:
+      rap.host: ${MAILCOW_HOSTNAME}
+      rap.port: ${HTTP_PORT}
+      rap.http_listen_ports: ${HTTP_PORT}
+      rap.https_listen_ports: ${HTTPS_PORT}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.251
+        aliases:
+          - nginx
+
+  dovecot:
+    image: pedrogoncalvesk/mailcow-dovecot:2.0
+    links:
+      - redis:redis-mailcow
+    volumes:
+      - ssl-vol-1:/etc/ssl/mail/:ro
+      - vmail-vol-1:/var/vmail
+      - crypt-vol-1:/mail_crypt/
+    environment:
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+    ports:
+      - "${DOVEADM_BIND}:${DOVEADM_PORT}:12345"
+      - "${IMAP_PORT}:143"
+      - "${IMAPS_PORT}:993"
+      - "${POP_PORT}:110"
+      - "${POPS_PORT}:995"
+      - "${SIEVE_PORT}:4190"
+    restart: always
+    cap_add:
+      - NET_BIND_SERVICE
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    dns:
+      - 172.22.1.254
+    hostname: ${MAILCOW_HOSTNAME}
+    networks:
+      mailcow-network:
+        aliases:
+          - dovecot
+
+  postfix:
+    image: pedrogoncalvesk/mailcow-postfix:2.0
+    links:
+      - redis:redis-mailcow
+    volumes:
+      - ssl-vol-1:/etc/ssl/mail/:ro
+      - postfix-vol-1:/var/spool/postfix
+      - crypt-vol-1:/var/lib/zeyple
+    environment:
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+    ports:
+      - "${SMTP_PORT}:25"
+      - "${SMTPS_PORT}:465"
+      - "${SUBMISSION_PORT}:587"
+    restart: always
+    dns:
+      - 172.22.1.254
+    hostname: ${MAILCOW_HOSTNAME}
+    networks:
+      mailcow-network:
+        aliases:
+          - postfix
+
+  memcached:
+    image: memcached:alpine
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        aliases:
+          - memcached
+
+  acme:
+    image: pedrogoncalvesk/mailcow-acme:2.1
+    links: 
+      - mysql:mysql-mailcow
+      - dockerapi
+    depends_on:
+      - nginx
+      - mysql
+    volumes:
+      - acme-vol-1:/var/www/acme:rw
+      - ssl-vol-1:/var/lib/acme/:rw
+    environment:
+      - ADDITIONAL_SAN=${ADDITIONAL_SAN}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - SKIP_LETS_ENCRYPT=${SKIP_LETS_ENCRYPT}
+      - SKIP_IP_CHECK=${SKIP_IP_CHECK}
+      - DOCKERAPI_PORT=${DOCKERAPI_PORT}
+      - DOCKERAPI_BIND=${DOCKERAPI_BIND}
+    restart: always
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.247
+        aliases:
+          - acme
+
+  fail2ban:
+    image: pedrogoncalvesk/mailcow-fail2ban:2.0
+    depends_on:
+      - dovecot
+      - postfix
+      - sogo
+      - php-fpm
+      - redis
+    volumes:
+      - /lib/modules:/lib/modules:ro
+    environment:
+      - TZ=${TZ}
+      - SKIP_FAIL2BAN=${SKIP_FAIL2BAN}
+    restart: always
+    stop_grace_period: 30s
+    privileged: true
+    dns:
+      - 172.22.1.254
+    network_mode: "host"
+    
+  watchdog:
+    image: pedrogoncalvesk/mailcow-watchdog:2.0
+    links:
+      - dockerapi:dockerapi-mailcow
+    volumes:
+      - vmail-vol-1:/vmail:ro
+    environment:
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - USE_WATCHDOG=${USE_WATCHDOG}
+      - WATCHDOG_NOTIFY_EMAIL=${WATCHDOG_NOTIFY_EMAIL}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+      - DOCKERAPI_PORT=${DOCKERAPI_PORT}
+      - DOCKERAPI_BIND=${DOCKERAPI_BIND}
+    restart: always
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.248
+        aliases:
+          - watchdog
+
+  dockerapi:
+    image: pedrogoncalvesk/mailcow-dockerapi:2.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOCKERAPI_PORT=${DOCKERAPI_PORT}
+      - DOCKERAPI_BIND=${DOCKERAPI_BIND}
+    restart: always
+    privileged: true
+    oom_score_adj: -10
+    dns:
+      - 172.22.1.254
+    networks:
+      mailcow-network:
+        ipv4_address: 172.22.1.246
+        aliases:
+          - dockerapi
+
+  ipv6nat:
+    image: robbertkl/ipv6nat
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /lib/modules:/lib/modules:ro
+    restart: always
+    privileged: true
+    network_mode: "host"
+
+networks:
+  mailcow-network:
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.1.0/24
+        - subnet: fd4d:6169:6c63:6f77::/64
+
+volumes:
+  mysql-vol-1:
+    driver: ${STORAGE_DRIVER}
+  redis-vol-1:
+    driver: ${STORAGE_DRIVER}
+  dkim-vol-1:
+    driver: ${STORAGE_DRIVER}
+  rspamd-vol-1:
+    driver: ${STORAGE_DRIVER}
+  vmail-vol-1:
+    driver: ${STORAGE_DRIVER}
+  crypt-vol-1:
+    driver: ${STORAGE_DRIVER}
+  postfix-vol-1:
+    driver: ${STORAGE_DRIVER}
+  ssl-vol-1:
+    driver: ${STORAGE_DRIVER}
+  dynmaps-vol-1:
+    driver: ${STORAGE_DRIVER}
+  web-vol-1:
+    driver: ${STORAGE_DRIVER}
+  acme-vol-1:
+    driver: ${STORAGE_DRIVER}
