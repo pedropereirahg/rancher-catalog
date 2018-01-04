@@ -1,3 +1,0 @@
-[submodule "templates/mailcow-rancherized/0"]
-	path = templates/mailcow-rancherized/0
-	url = git@github.com:pedrogoncalvesk/mailcow-rancherized.git
