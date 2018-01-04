@@ -2,7 +2,7 @@ version: '2'
 services:
 
   unbound:
-    image: pedrogoncalvesk/mailcow-unbound:2.0
+    image: pedrogoncalvesk/mailcow-unbound:2.1
     restart: always
     networks:
       mailcow-network:
@@ -42,7 +42,7 @@ services:
           - redis
 
   clamd:
-    image: pedrogoncalvesk/mailcow-clamd:2.0
+    image: pedrogoncalvesk/mailcow-clamd:2.1
     environment:
       - SKIP_CLAMD=${SKIP_CLAMD}
     restart: always
@@ -54,7 +54,7 @@ services:
           - clamd
 
   rspamd:
-    image: pedrogoncalvesk/mailcow-rspamd:2.0
+    image: pedrogoncalvesk/mailcow-rspamd:2.1
     links:
       - php-fpm
     depends_on:
@@ -75,7 +75,7 @@ services:
           - rspamd
 
   php-fpm:
-    image: pedrogoncalvesk/mailcow-phpfpm:2.0
+    image: pedrogoncalvesk/mailcow-phpfpm:2.1
     command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
     links:
       - redis:redis-mailcow
@@ -112,7 +112,7 @@ services:
           - phpfpm
 
   sogo:
-    image: pedrogoncalvesk/mailcow-sogo:2.0
+    image: pedrogoncalvesk/mailcow-sogo:2.1
     links:
       - mysql
       - redis:redis-mailcow
@@ -132,7 +132,7 @@ services:
           - sogo
 
   nginx:
-    image: pedrogoncalvesk/mailcow-nginx:1.0
+    image: pedrogoncalvesk/mailcow-nginx:1.1
     links:
       - sogo
       - redis
@@ -168,7 +168,7 @@ services:
           - nginx
 
   dovecot:
-    image: pedrogoncalvesk/mailcow-dovecot:2.0
+    image: pedrogoncalvesk/mailcow-dovecot:2.1
     links:
       - redis:redis-mailcow
     volumes:
@@ -203,7 +203,7 @@ services:
           - dovecot
 
   postfix:
-    image: pedrogoncalvesk/mailcow-postfix:2.0
+    image: pedrogoncalvesk/mailcow-postfix:2.1
     links:
       - redis:redis-mailcow
     volumes:
@@ -238,7 +238,7 @@ services:
           - memcached
 
   acme:
-    image: pedrogoncalvesk/mailcow-acme:2.1
+    image: pedrogoncalvesk/mailcow-acme:2.3
     links: 
       - mysql:mysql-mailcow
       - dockerapi
@@ -268,7 +268,7 @@ services:
           - acme
 
   fail2ban:
-    image: pedrogoncalvesk/mailcow-fail2ban:2.0
+    image: pedrogoncalvesk/mailcow-fail2ban:2.1
     depends_on:
       - dovecot
       - postfix
@@ -288,7 +288,7 @@ services:
     network_mode: "host"
     
   watchdog:
-    image: pedrogoncalvesk/mailcow-watchdog:2.0
+    image: pedrogoncalvesk/mailcow-watchdog:2.1
     links:
       - dockerapi:dockerapi-mailcow
     volumes:
@@ -310,7 +310,7 @@ services:
           - watchdog
 
   dockerapi:
-    image: pedrogoncalvesk/mailcow-dockerapi:2.0
+    image: pedrogoncalvesk/mailcow-dockerapi:2.1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
