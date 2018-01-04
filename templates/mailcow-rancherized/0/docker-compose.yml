@@ -132,7 +132,7 @@ services:
           - sogo
 
   nginx:
-    image: pedrogoncalvesk/mailcow-nginx:1.2
+    image: pedrogoncalvesk/mailcow-nginx:1.3
     links:
       - sogo
       - redis
