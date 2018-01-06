@@ -1,6 +1,6 @@
 .catalog:
   name: mailcow
-  version: 1.1.6
+  version: 1.1.7
   description: mailserver suite
   questions:
     - variable: MAILCOW_HOSTNAME
@@ -54,8 +54,7 @@
     - variable: WATCHDOG_NOTIFY_EMAIL
       label: "Watchdog Notify by Mail"
       type: "string"
-      default: "y"
-      description: "Send notifications by mail (no DKIM signature, sent from watchdog@MAILCOW_HOSTNAME) - y/n"
+      description: "Send notifications by mail (no DKIM signature, sent from watchdog@MAILCOW_HOSTNAME)"
 
     - variable: ADDITIONAL_SAN
       label: "Additional SAN"
