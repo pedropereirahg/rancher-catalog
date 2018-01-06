@@ -33,7 +33,7 @@ services:
     restart: always
 
   php-fpm:
-    image: pedrogoncalvesk/mailcow-phpfpm:2.2
+    image: pedrogoncalvesk/mailcow-phpfpm:2.3
     command: "php-fpm -d date.timezone=${TZ} -d expose_php=0"
     links:
       - redis:redis-mailcow
