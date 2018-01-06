@@ -1,6 +1,6 @@
 .catalog:
   name: mailcow
-  version: 1.1.5
+  version: 1.1.6
   description: mailserver suite
   questions:
     - variable: MAILCOW_HOSTNAME
@@ -166,8 +166,6 @@
       type: "string"
       default: "127.0.0.1"
 
-unbound:
-  scale: 1
 mysql:
   scale: 1
 redis:
@@ -186,8 +184,6 @@ dovecot:
   scale: 1
 postfix:
   scale: 1
-memcached:
-  scale: 1
 acme:
   scale: 1
 fail2ban:
@@ -195,6 +191,8 @@ fail2ban:
 watchdog:
   scale: 1
 dockerapi:
+  scale: 1
+memcached:
   scale: 1
 ipv6nat:
   scale: 1
