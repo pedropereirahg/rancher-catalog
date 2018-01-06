@@ -1,6 +1,6 @@
 name: Mailcow Rancherized
 description: Mailserver suite for rancher
-version: 1.2.1
+version: 1.2.2
 category: Email
 maintainer: "Pedro Pereira <pedrogoncalvesp.95@gmail.com>"
-projectURL: https://github.com/pedrogoncalvesk/mailcow-rancherized/tree/1.2.1
+projectURL: https://github.com/pedrogoncalvesk/mailcow-rancherized/tree/1.2.2

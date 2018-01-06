@@ -147,6 +147,7 @@ services:
     image: pedrogoncalvesk/mailcow-postfix:2.2
     links:
       - redis:redis-mailcow
+      - mysql
     volumes:
       - ssl-vol-1:/etc/ssl/mail/:ro
       - postfix-vol-1:/var/spool/postfix
