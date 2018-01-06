@@ -1,4 +1,4 @@
-# mailcow: dockerized and rancherized - 🐮 + 🐋 + :rocket: = 💕
+# mailcow: dockerized and rancherized - 🐮 + 🐋 + 🚀 = 💕
 
 From https://github.com/mailcow/mailcow-dockerized
 

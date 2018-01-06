@@ -112,9 +112,6 @@ services:
       - "${HTTP_BIND}:${HTTP_PORT}:80"
     labels:
       rap.host: ${MAILCOW_HOSTNAME}
-      rap.port: "443"
-      rap.proto: https
-      rap.http_listen_ports: 80,443
     restart: always
 
   dovecot:
